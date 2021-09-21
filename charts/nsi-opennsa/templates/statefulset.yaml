@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "nsi-opennsa.fullname" . }}
+  labels:
+    {{- include "nsi-opennsa.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Chart.Name }}
+  selector:
+    matchLabels:
+      {{- include "nsi-opennsa.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-config.yaml") . | sha256sum }}
+        checksum/certificates: {{ include (print $.Template.BasePath "/configmap-certificates.yaml") . | sha256sum }}
+      {{- if .Values.backends.enabled }}
+        checksum/backends: {{ include (print $.Template.BasePath "/configmap-backends.yaml") . | sha256sum }}
+      {{- end }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nsi-opennsa.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nsi-opennsa.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:alpine
+        command: ["sh", "-c",
+          {{ printf "until pg_isready -h %s-postgresql.%s.svc.cluster.local -p 5432; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Release.Name .Release.Namespace | quote }}
+        ]
+      env:
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/bin/sh"
+          args:
+            - {{ printf "%s/startup.sh" .Values.config.mountPath | quote }}
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgresql-password
+                  name: test-nsi-opennsa-postgresql
+          ports:
+            - name: internal
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: {{ .Release.Name }}-{{ .Values.config.name }}
+              mountPath: {{ .Values.config.mountPath }}
+              readOnly: true
+            - name: {{ .Release.Name }}-{{ .Values.certificates.name }}
+              mountPath: {{ .Values.certificates.mountPath }}
+              readOnly: true
+          {{- if .Values.backends.enabled }}
+            - name: {{ .Release.Name }}-{{ .Values.backends.name }}
+              mountPath: {{ .Values.backends.mountPath }}
+              readOnly: true
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              scheme: {{ .Values.livenessProbe.scheme }}
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.service.containerPort }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              scheme: {{ .Values.startupProbe.scheme }}
+              path: {{ .Values.startupProbe.path }}
+              port: {{ .Values.service.containerPort }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: {{ .Release.Name }}-{{ .Values.config.name }}
+          configMap:
+            name: {{ .Release.Name }}-{{ .Values.config.name }}
+        - name: {{ .Release.Name }}-{{ .Values.certificates.name }}
+          configMap:
+            name: {{ .Release.Name }}-{{ .Values.certificates.name }}
+      {{- if .Values.backends.enabled }}
+        - name: {{ .Release.Name }}-{{ .Values.backends.name }}
+          configMap:
+            name: {{ .Release.Name }}-{{ .Values.backends.name }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,13 @@
+/target/
+/var/
+.classpath
+.project
+.settings/
+.idea
+*.iml
+*.swp
+.java-version
+charts/nsi-opennsa/certificates/
+charts/nsi-opennsa/backends/
+charts/nsi-opennsa/config/
+charts/nsi-opennsa/postgres/

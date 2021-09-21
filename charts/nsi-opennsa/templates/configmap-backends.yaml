@@ -1,0 +1,12 @@
+{{- if .Values.backends.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.backends.name }}
+#  namespace: {{ .Release.Namespace }}
+binaryData:
+{{ range $path, $_ :=  .Files.Glob  .Values.backends.filesGlob }}
+{{ $path | base | indent 2 }}: |-
+{{ $.Files.Get $path | b64enc | indent 4 }}
+{{ end }}
+{{- end }}
