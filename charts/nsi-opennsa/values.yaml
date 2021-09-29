@@ -94,6 +94,21 @@ tolerations: []
 
 affinity: {}
 
+postgresql:
+  postgresqlUsername: opennsa
+  # postgresqlPassword:
+  postgresqlDatabase: opennsa
+  image:
+    tag: 9.6.21
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 500Mi
+  volumePermissions:
+    enabled: true
+  initdbScriptsConfigMap: test-nsi-opennsa-postgres-initdb-scripts
+
 config:
   name: "config"
   mountPath: "/config"
