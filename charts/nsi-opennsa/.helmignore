@@ -23,5 +23,3 @@
 .vscode/
 #
 certificates/
-charts/
-Chart.lock
