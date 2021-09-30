@@ -22,4 +22,6 @@
 *.tmproj
 .vscode/
 #
-examples/
+certificates/
+charts/
+Chart.lock

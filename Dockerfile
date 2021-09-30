@@ -14,10 +14,10 @@ ENV USER opennsa
 # Update and install dependencies
 # pip to install twistar service-identity pyasn1
 # pyasn1 and crypto is needed for ssh backends
-RUN apt-get update && apt-get install -y git-core python3 python3-twisted-bin python3-openssl python3-psycopg2 python3-pip python3-cryptography python3-dateutil
+RUN apt-get update && apt-get install -y git-core python3 python3-twisted-bin python3-openssl python3-psycopg2 python3-pip python3-cryptography python3-dateutil python3-distutils python3-requests
 
 # requests is needed for workflowengine backend
-RUN pip3 install twistar service-identity pyasn1 requests
+RUN pip3 install twistar service-identity pyasn1
 
 
 # -- User setup --
