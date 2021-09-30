@@ -95,6 +95,7 @@ tolerations: []
 affinity: {}
 
 postgresql:
+  enabled: true
   postgresqlUsername: opennsa
   # postgresqlPassword:
   postgresqlDatabase: opennsa
