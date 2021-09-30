@@ -51,8 +51,8 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: postgresql-password
-                  name: test-nsi-opennsa-postgresql
+                  name: {{ .Release.Name }}-secret
+                  key: POSTGRES_PASSWORD
           ports:
             - name: internal
               containerPort: {{ .Values.service.containerPort }}
