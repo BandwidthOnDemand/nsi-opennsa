@@ -94,14 +94,14 @@ spec:
       volumes:
         - name: {{ .Release.Name }}-{{ .Values.config.name }}
           configMap:
-            name: {{ .Release.Name }}-{{ .Values.config.name }}
+            name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.config.name }}
         - name: {{ .Release.Name }}-{{ .Values.certificates.name }}
           configMap:
-            name: {{ .Release.Name }}-{{ .Values.certificates.name }}
+            name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.certificates.name }}
       {{- if .Values.backends.enabled }}
         - name: {{ .Release.Name }}-{{ .Values.backends.name }}
           configMap:
-            name: {{ .Release.Name }}-{{ .Values.backends.name }}
+            name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.backends.name }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

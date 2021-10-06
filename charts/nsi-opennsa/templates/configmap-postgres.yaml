@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-postgres-initdb-scripts
+  name: {{ include "nsi-opennsa.fullname" . }}-postgres-initdb-scripts
 data:
 {{- $files := .Files }}
 {{- range tuple "postgres/schema.sql" }}

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.certificates.name }}
+  name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.certificates.name }}
 #  namespace: {{ .Release.Namespace }}
 #  annotations:
 #    "helm.sh/hook": pre-install,pre-upgrade
