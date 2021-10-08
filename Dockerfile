@@ -6,7 +6,8 @@ MAINTAINER Henrik Thostrup Jensen <htj@nordu.net>
 
 
 # -- Environment --
-ENV GIT_REPO https://github.com/NORDUnet/opennsa
+ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
+ENV OPENNSA_VERSION eddf14f94a6e0d183c70f7465ba466ddc951c2fd
 ENV USER opennsa
 
 
@@ -28,8 +29,7 @@ RUN adduser --disabled-password --gecos 'OpenNSA user' $USER
 USER $USER
 WORKDIR /home/$USER
 
-RUN echo git clone $GIT_REPO
-RUN git clone $GIT_REPO
+RUN git clone $OPENNSA_GIT_REPO && cd opennsa && git checkout $OPENNSA_VERSION
 
 # -- Cleanup --
 # With --squash this makes the image go from 476 to 164 mb
@@ -46,7 +46,6 @@ USER $USER
 WORKDIR /home/$USER/opennsa
 
 ENV PYTHONPATH .
-
 
 # -- Entrypoint --
 

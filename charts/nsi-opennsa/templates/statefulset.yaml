@@ -44,9 +44,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - "/bin/sh"
+            - "twistd"
           args:
-            - {{ printf "%s/startup.sh" .Values.config.mountPath | quote }}
+            - "-ny"
+            - {{ printf "%s/opennsa.tac" .Values.config.mountPath | quote }}
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
