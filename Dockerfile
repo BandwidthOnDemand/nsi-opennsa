@@ -1,13 +1,16 @@
-# OpenNSA docker image
+# OpenNSA docker image suited for nsi-node deployment
 
 FROM debian:stable-slim
 
-MAINTAINER Henrik Thostrup Jensen <htj@nordu.net>
+MAINTAINER Hans Trompert <hans.trompert@surf.nl>
 
 
 # -- Environment --
-ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
-ENV OPENNSA_VERSION eddf14f94a6e0d183c70f7465ba466ddc951c2fd
+#ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
+#ENV OPENNSA_VERSION eddf14f94a6e0d183c70f7465ba466ddc951c2fd
+# temporarily use patched forked version until pull request has been accepted
+ENV OPENNSA_GIT_REPO https://github.com/BandwidthOnDemand/opennsa.git
+ENV OPENNSA_VERSION 4fc830c18b1967814c59d5a8051138166f48f7fb
 ENV USER opennsa
 
 
@@ -15,10 +18,18 @@ ENV USER opennsa
 # Update and install dependencies
 # pip to install twistar service-identity pyasn1
 # pyasn1 and crypto is needed for ssh backends
-RUN apt-get update && apt-get install -y git-core python3 python3-twisted-bin python3-openssl python3-psycopg2 python3-pip python3-cryptography python3-dateutil python3-distutils python3-requests
-
-# requests is needed for workflowengine backend
+RUN apt-get update
+RUN apt-get install -y git-core python3 python3-twisted-bin python3-openssl python3-psycopg2 python3-pip python3-cryptography python3-dateutil python3-distutils
 RUN pip3 install twistar service-identity pyasn1
+# Debian bullseye has moved the /usr/bin/python symlink to a separate package
+RUN apt-get install -y python-is-python3
+
+# dependencies for workfloworchestrator backend (SURF)
+RUN apt-get install -y python3-requests
+
+# dependencies for paristaEOS4 backend (NRP Nautilus)
+RUN apt-get install -y vim
+RUN pip3 install paramiko
 
 
 # -- User setup --
@@ -52,4 +63,6 @@ ENV PYTHONPATH .
 EXPOSE 9080
 EXPOSE 9443
 
+# allow nsi-node custum backends to be loaded
+ENV PYTHONPATH=/backends:$PYTHONPATH
 ENTRYPOINT rm -f twistd.pid; twistd -ny opennsa.tac
