@@ -42,5 +42,6 @@ OpenNSA is exposed to the Internet.
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm dependency update charts/nsi-opennsa
 kubectl create secret generic example-secret --from-literal=POSTGRES_PASSWORD="`head -c 33 /dev/urandom | base64`"
+POSTGRES_PASSWORD=`kubectl get secret example-secret -o jsonpath="{.data.POSTGRES_PASSWORD}" | base64 --decode`
 helm upgrade --install --set postgresql.postgresqlPassword=$POSTGRES_PASSWORD example charts/nsi-opennsa
 ```
