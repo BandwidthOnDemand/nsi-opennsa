@@ -6,11 +6,8 @@ MAINTAINER Hans Trompert <hans.trompert@surf.nl>
 
 
 # -- Environment --
-#ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
-#ENV OPENNSA_VERSION eddf14f94a6e0d183c70f7465ba466ddc951c2fd
-# temporarily use patched forked version until pull request has been accepted
-ENV OPENNSA_GIT_REPO https://github.com/BandwidthOnDemand/opennsa.git
-ENV OPENNSA_VERSION e5e7c61fa5834c9812aacaf56c23c55fcb3e0321
+ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
+ENV OPENNSA_VERSION 69d04b01fe239089a24f6bb2fb1e8b616a2a4923
 ENV USER opennsa
 
 
