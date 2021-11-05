@@ -7,8 +7,3 @@
 *.iml
 *.swp
 .java-version
-charts/nsi-opennsa/certificates/
-charts/nsi-opennsa/backends/
-charts/nsi-opennsa/config/
-charts/nsi-opennsa/charts
-charts/nsi-opennsa/Chart.lock
