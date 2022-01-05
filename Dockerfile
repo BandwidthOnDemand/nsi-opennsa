@@ -7,7 +7,9 @@ MAINTAINER Hans Trompert <hans.trompert@surf.nl>
 
 # -- Environment --
 ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
-ENV OPENNSA_VERSION 69d04b01fe239089a24f6bb2fb1e8b616a2a4923
+ENV OPENNSA_VERSION 3.0.2
+#ENV OPENNSA_GIT_REPO https://github.com/BandwidthOnDemand/opennsa.git
+#ENV OPENNSA_VERSION 4dda303f9ec9f4096800af1b5bf6f6608e96d105
 ENV USER opennsa
 
 
