@@ -31,11 +31,47 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-      - name: wait-for-postgres
-        image: postgres:alpine
-        command: ["sh", "-c",
-          {{ printf "until pg_isready -h %s-postgresql.%s.svc.cluster.local -p 5432; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Release.Name .Release.Namespace | quote }}
-        ]
+        - name: wait-for-postgres
+          image: postgres:alpine
+          {{- if .Values.secretProviderClass.enabled }}
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - 'DATABASE_HOST=`echo $DATABASE_URI | sed "s|^postgresql://$DATABASE_USERNAME@[^@]*@\([^:]*\).*$|\1|"`; until pg_isready --host=$DATABASE_HOST --username=$DATABASE_USERNAME@$DATABASE_HOST --dbname=$DATABASE_NAME --port=5432; do echo `date` sleeping 2 seconds ...; sleep 2; done'
+          {{- else }}
+          command: ["sh", "-c",
+            {{ printf "until pg_isready -h %s-postgresql.%s.svc.cluster.local -p 5432; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Release.Name .Release.Namespace | quote }}
+          ]
+          {{- end }}
+          {{- if .Values.secretProviderClass.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+          {{- end }}
+        {{- if .Values.secretProviderClass.enabled }}
+        - name: initdb
+          image: postgres:alpine
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - "sh /config/initdb.sh"
+          envFrom:
+            - secretRef:
+                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-{{ .Values.config.name }}
+              mountPath: {{ .Values.config.mountPath }}
+              readOnly: true
+            - name: secret-volume
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+        {{- end }}
       env:
       containers:
         - name: {{ .Chart.Name }}
@@ -43,17 +79,31 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.secretProviderClass.enabled }}
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - "sh /config/startup.sh"
+          {{- else }}
           command:
             - "twistd"
           args:
             - "-ny"
             - {{ printf "%s/opennsa.tac" .Values.config.mountPath | quote }}
+          {{- end }}
+          {{- if .Values.secretProviderClass.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+          {{- else }}
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: POSTGRES_PASSWORD
+          {{- end }}
           ports:
             - name: internal
               containerPort: {{ .Values.service.containerPort }}
@@ -68,6 +118,11 @@ spec:
           {{- if .Values.backends.enabled }}
             - name: {{ .Release.Name }}-{{ .Values.backends.name }}
               mountPath: {{ .Values.backends.mountPath }}
+              readOnly: true
+          {{- end }}
+          {{- if .Values.secretProviderClass.enabled }}
+            - name: secret-volume
+              mountPath: "/mnt/secrets-store"
               readOnly: true
           {{- end }}
           {{- if .Values.livenessProbe.enabled }}
@@ -99,11 +154,21 @@ spec:
         - name: {{ .Release.Name }}-{{ .Values.certificates.name }}
           configMap:
             name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.certificates.name }}
-      {{- if .Values.backends.enabled }}
+        {{- if .Values.backends.enabled }}
         - name: {{ .Release.Name }}-{{ .Values.backends.name }}
           configMap:
             name: {{ include "nsi-opennsa.fullname" . }}-{{ .Values.backends.name }}
-      {{- end }}
+        {{- end }}
+        {{- if .Values.secretProviderClass.enabled }}
+        - name: secret-volume
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Release.Name }}-secretproviderclass
+            nodePublishSecretRef:
+              name: {{ .Values.secretProviderClass.nodePublishSecretRefNname }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
