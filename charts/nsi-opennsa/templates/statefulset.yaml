@@ -52,7 +52,7 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+                name: {{ include "nsi-opennsa.fullname" . }}-secret
           volumeMounts:
             - name: secret-volume
               mountPath: "/mnt/secrets-store"
@@ -73,7 +73,7 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+                name: {{ include "nsi-opennsa.fullname" . }}-secret
           volumeMounts:
             - name: {{ .Release.Name }}-{{ .Values.config.name }}
               mountPath: {{ .Values.config.mountPath }}
@@ -110,7 +110,7 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ .Chart.Name }}-{{ .Release.Namespace }}
+                name: {{ include "nsi-opennsa.fullname" . }}-secret
           {{- else }}
           env:
             - name: POSTGRES_PASSWORD
