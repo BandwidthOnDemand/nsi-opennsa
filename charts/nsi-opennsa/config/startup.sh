@@ -1,2 +1,5 @@
-export DATABASE_HOST=`echo $DATABASE_URI | sed "s|^postgresql://$DATABASE_USERNAME@[^@]*@\([^:]*\).*$|\1|"`
+export DATABASE=${PGDATABASE}
+export DATABASE_USER=${PGUSER}
+export DATABASE_PASSWORD=${PGPASSWORD}
+export DATABASE_HOST=${PGHOST}
 exec twistd -ny /config/opennsa.tac

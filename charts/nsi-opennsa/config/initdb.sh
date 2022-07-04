@@ -1,6 +1,4 @@
-export DATABASE_HOST=`echo $DATABASE_URI | sed "s|^postgresql://$DATABASE_USERNAME@[^@]*@\([^:]*\).*$|\1|"`
-export PGPASSWORD=$DATABASE_PASSWORD
-psql --host=$DATABASE_HOST --username=$DATABASE_USERNAME@$DATABASE_HOST --dbname=$DATABASE_NAME --port=5432 <<EOF
+psql --username=${PGUSER}@${PGHOST} <<EOF
       BEGIN;
       CREATE TYPE label AS (
           label_type      text,

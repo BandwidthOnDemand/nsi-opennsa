@@ -220,4 +220,16 @@ secretProviderClass:
   keyVaultName:
   tenantId:
   nodePublishSecretRefNname:
+  env:
+    - name: "PGHOST"
+      value: "host.domain"
+    - name: "PGPORT"
+      value: 5432
+  objects:
+    - key: "PGDATABASE"
+      objectName: "opennsa-db-name"
+    - key: "PGPASSWORD"
+      objectName: "opennsa-db-password"
+    - key: "PGUSER"
+      objectName: "opennsa-db-username"
 
