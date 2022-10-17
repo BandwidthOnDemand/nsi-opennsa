@@ -5,8 +5,8 @@ FROM debian:stable-slim
 MAINTAINER Hans Trompert <hans.trompert@surf.nl>
 
 # -- Environment --
-ENV OPENNSA_GIT_REPO https://github.com/NORDUnet/opennsa.git
-ENV OPENNSA_VERSION e5b1da1036aab4975088688c50524f4b0718c0aa
+ENV OPENNSA_GIT_REPO https://github.com/BandwidthOnDemand/opennsa.git
+ENV OPENNSA_VERSION 07732630e9721885237233ef17ee54ecbbca8637
 ENV USER opennsa
 
 # -- User setup --
