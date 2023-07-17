@@ -50,4 +50,4 @@ EXPOSE 9443
 
 # allow nsi-node custum backends to be loaded
 ENV PYTHONPATH=/backends:$PYTHONPATH
-ENTRYPOINT rm -f twistd.pid; twistd -ny opennsa.tac
+CMD rm -f twistd.pid; twistd -ny opennsa.tac
