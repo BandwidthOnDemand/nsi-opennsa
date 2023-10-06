@@ -20,13 +20,21 @@ update at least the following:
 Edit the network resource map `charts/nsi-opennsa/config/opennsa.nrm` to reflect
 the NSI exposed topology.
 
-Add the trusted certificates to `charts/nsi-opennsa/certificates` and make sure that
+Add the trusted certificates to `charts/nsi-opennsa/certs` and make sure that
 the files are named like `<hash>.0`, for example:
 
 ```shell
 hash=`openssl x509 -noout -hash -in host.crt`
 ln -s host.cert ${hash}.0
 ```
+
+---
+**Note**
+
+Do not use `certificates` as the name of the folder to hold the certificates 
+because Helm will ignore that folder.
+
+---
 
 Add custom backends to `charts/nsi-opennsa/backends`, if any. The backends can
 then be referenced from your `opennsa.conf`. If the nsi-opennsa container is missing

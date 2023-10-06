@@ -208,7 +208,7 @@ config:
 certificates:
   name: "certificates"
   mountPath: "/certificates"
-  filesGlob: "certificates/*"
+  filesGlob: "certs/*"
 
 backends:
   enabled: true
