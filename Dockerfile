@@ -44,6 +44,7 @@ USER $USER
 WORKDIR /home/$USER/opennsa
 
 ENV PYTHONPATH .
+ENV PATH="/home/$USER/venv/bin:$PATH"
 
 # -- Entrypoint --
 EXPOSE 9080
@@ -51,4 +52,4 @@ EXPOSE 9443
 
 # allow nsi-node custum backends to be loaded
 ENV PYTHONPATH=/backends:$PYTHONPATH
-CMD rm -f twistd.pid; . /home/$USER/venv/bin/activate; twistd -ny opennsa.tac
+CMD rm -f twistd.pid; twistd -ny opennsa.tac
